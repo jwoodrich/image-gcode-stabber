@@ -41,8 +41,6 @@ image=image.resize((int(image.size[0]*resize_factor),int(image.size[1]*resize_fa
 
 preview = Image.new(mode='L', size=(int(WORKSPACE_WIDTH*hole_offset*preview_scale),int(WORKSPACE_HEIGHT*hole_offset*preview_scale)))
 draw = ImageDraw.Draw(preview)
-#black = ImageColor.getrgb('#000000')
-#white = ImageColor.getrgb('#ffffff')
 
 draw.rectangle(xy=(0, 0, preview.width, preview.height), fill='black')
 half_offset=int(hole_offset/2)
@@ -63,16 +61,20 @@ def gcode_move(x=None,y=None,z=None,rapid=True):
   return " ".join(elements)+"\n"
 
 with open(filename+".gcode","w") as fp:
-  #fp.write("$110=635.000\n$111=635.000\n$112=635.000\n")
   fp.write(gcode_move(z=WORKSPACE_ZMAX))
   fp.write(gcode_move(x=WORKSPACE_XMIN, y=WORKSPACE_YMIN))
   fp.write(gcode_spindle_on(speed=2000))
   for y in range(0,image.height):
+    # skip every other row
     if y%2==1:
       continue
     for x in range(0,image.width):
+      # skip every other column
       if x%2==1:
         continue
+      # optimization to alternate working left to right and right to left by row
+      if y%4>0:
+        x=image.width-x
       cnc_x=WORKSPACE_XMIN+x
       cnc_y=WORKSPACE_YMIN-y
       middle=((x+half_offset)*preview_scale,(y+half_offset)*preview_scale)
