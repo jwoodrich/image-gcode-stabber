@@ -32,8 +32,6 @@ MATERIAL_THICKNESS=0.5
 hole_offset=3.0
 preview_scale=8
 
-#image=image.rotate(-90, expand=True)
-
 # resize the image to fit ... largest side should fit into workspace
 resize_factor=min(WORKSPACE_WIDTH/image.size[0],WORKSPACE_HEIGHT/image.size[1])
 print("will resize by ",resize_factor)
@@ -74,7 +72,7 @@ with open(filename+".gcode","w") as fp:
         continue
       # optimization to alternate working left to right and right to left by row
       if y%4>0:
-        x=image.width-x
+        x=image.width-x-1
       cnc_x=WORKSPACE_XMIN+x
       cnc_y=WORKSPACE_YMIN-y
       middle=((x+half_offset)*preview_scale,(y+half_offset)*preview_scale)
